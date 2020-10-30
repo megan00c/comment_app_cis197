@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
 import { Voter } from './Voter.js'
+import { Reply } from './Reply.js'
+import { Form } from './Form.js'
+
 //import { updateTextInput, updateNameInput } from '../actions/functions'
 
 export const NewPost = () => {
@@ -19,8 +22,6 @@ export const NewPost = () => {
 
     const [idct, setIdct] = useState(0)
 
-    const [currEdit, setCurrEdit] = useState(0)
-
     const updateReplyNameInput = e => {
         setReplyNameInput(e.target.value)
     }
@@ -39,8 +40,10 @@ export const NewPost = () => {
 
     const addPost = e => {
         if (nameInput.length > 0 && textInput.length > 0) {
-            setPosts([...posts, { name: nameInput, body: textInput, id: idct }])
+            setPosts([...posts, { name: nameInput, body: textInput, id: idct, children: [] }])
             setIdct(idct + 1)
+            setName(nameInput)
+            setTextEntry(textInput)
             setNameInput('')
             setTextInput('')
         }
@@ -53,15 +56,10 @@ export const NewPost = () => {
     const submitReply = id => {
         setModalActive(false)
         const newPosts = posts.map(post => {
-            if (post.id !== currEdit) {
-                return post
-            } else {
-              return { name: post.name, body: post.body, id: post.id, 
-                children: [...children, {name: replyNameInput, body: replyTextInput}] }
-            }
-          })
+            return { name: post.name, body: post.body, id: post.id, 
+                children: [...post.children, {name: replyNameInput, body: replyTextInput, children: []}] }
+        })
         setPosts(newPosts)
-        setCurrEdit(-1)
     }
 
     return (
@@ -74,8 +72,8 @@ export const NewPost = () => {
              <input onChange={e => updateTextInput(e)} placeholder = 'Write a new post...' value = {textInput} />
              <br></br>
              <br></br> 
-             <button className = 'submit-button' onClick = {() => addPost()}> Submit Post </button>
-         </div>
+             <button className = 'submit-button' onClick = {() => addPost()}> Submit </button>
+        </div>
 
          <br></br>
          <br></br>
@@ -85,12 +83,20 @@ export const NewPost = () => {
             {
             posts.map(post =>
             (
-                <div className = 'post'>
-                    <div className='post-name'>Name: {post.name} </div>
-                    <div className='post-entry'>Post: {post.body}</div>
-                    <button className = 'reply-button' onClick = {() => replyP()}>Reply</button>
+                <div>
+                    <div className = 'post'>
+                        {/* <div className='post-name'>Name: {post.name} </div>
+                        <div className='post-entry'>Post: {post.body}</div> */}
+                        <Reply text={post.body} author={post.name} children={post.children}></Reply>
+                        <br></br>
+                        <Voter></Voter>
+                        <br></br>
+                        <br></br>
+                        {post.children[0] !== undefined && <Reply text = {post.children[0].body} 
+                        author = {post.children[0].author}></Reply>}
+                        <button className = 'reply-button' onClick = {() => replyP()}>Reply</button>
+                    </div>
                     <br></br>
-                    <Voter></Voter>
                 </div>
             )) 
             } 
@@ -99,12 +105,13 @@ export const NewPost = () => {
         {modalActive && <div className="modal" onClick = {() => setModalActive(false)}>
             <div className = "modal-inner" onClick = {e => e.stopPropagation()}>
             <h5>Reply!</h5>
-                <input onChange = {e => updateReplyNameInput(e)} placeholder = 'Name' defaultValue = {replyNameInput} />
-                <textarea placeholder = '' onChange={e => updateReplyTextInput(e)} defaultValue = {''} />
+                <input onChange = {e => updateReplyNameInput(e)} placeholder = 'Name' defaultValue = {''} />
+                <textarea placeholder = '' onChange={e => updateReplyTextInput(e)} defaultValue = {'@' + name + ' '} />
                 <button onClick = {e => submitReply(e)}>Submit reply</button>
             </div>
             </div>}
         </>
     )
 }
+
 

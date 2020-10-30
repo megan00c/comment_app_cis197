@@ -40,3 +40,14 @@
     border-radius: 10px;
     display: inline-block;
   }
+
+  .author {
+      font-weight: bold;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: blue
+  }
+
+  .text {
+      font-family: 'Times New Roman', Times, serif;
+      color: black;
+  }
