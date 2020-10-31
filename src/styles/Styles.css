@@ -17,6 +17,11 @@
     background: #F0F8FF;
 }
 
+.left-margin{
+    margin-left: 60px;
+}
+
+
 .submit-button{
     color: 'black';
     background-color:'white';

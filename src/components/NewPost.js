@@ -1,14 +1,9 @@
 import React, { useState } from 'react'
-import { Voter } from './Voter.js'
 import { Reply } from './Reply.js'
-import { Form } from './Form.js'
-
-//import { updateTextInput, updateNameInput } from '../actions/functions'
 
 export const NewPost = () => {
 
     const [textInput, setTextInput] = useState('')
-    const [textEntry, setTextEntry] = useState('')
 
     const [replyNameInput, setReplyNameInput] = useState('')
     const [replyTextInput, setReplyTextInput] = useState('')
@@ -16,11 +11,13 @@ export const NewPost = () => {
     const [modalActive, setModalActive] = useState(false)
 
     const [nameInput, setNameInput] = useState('')
-    const [name, setName] = useState('')
 
-    const [posts, setPosts] = useState([])
+    const [topLevelPosts, setTopLevelPosts] = useState([])
+    const [postData, setPostData] = useState({}) // postdata is a map from a post's id to its data and children
 
     const [idct, setIdct] = useState(0)
+
+    const [activeReply, setActiveReply] = useState(-1)
 
     const updateReplyNameInput = e => {
         setReplyNameInput(e.target.value)
@@ -40,26 +37,24 @@ export const NewPost = () => {
 
     const addPost = e => {
         if (nameInput.length > 0 && textInput.length > 0) {
-            setPosts([...posts, { name: nameInput, body: textInput, id: idct, children: [] }])
+            setPostData({...postData, [idct]: { name: nameInput, body: textInput, id: idct, children: [] }})
+            setTopLevelPosts([...topLevelPosts, idct])
             setIdct(idct + 1)
-            setName(nameInput)
-            setTextEntry(textInput)
             setNameInput('')
             setTextInput('')
         }
     }
 
-    const replyP = e => {
+    const replyP = id => {
         setModalActive(true)
+        setActiveReply(id)
     }
 
     const submitReply = id => {
         setModalActive(false)
-        const newPosts = posts.map(post => {
-            return { name: post.name, body: post.body, id: post.id, 
-                children: [...post.children, {name: replyNameInput, body: replyTextInput, children: []}] }
-        })
-        setPosts(newPosts)
+        setPostData({...postData,  [activeReply]: {...postData[activeReply], children: [...postData[activeReply].children, idct]}, [idct]: {replyNameInput, body: replyTextInput, children: []}});
+        setIdct(idct+1)
+        setActiveReply(-1)
     }
 
     return (
@@ -81,20 +76,11 @@ export const NewPost = () => {
 
          <div className="posts-container">
             {
-            posts.map(post =>
+            topLevelPosts.map(id =>
             (
                 <div>
                     <div className = 'post'>
-                        {/* <div className='post-name'>Name: {post.name} </div>
-                        <div className='post-entry'>Post: {post.body}</div> */}
-                        <Reply text={post.body} author={post.name} children={post.children}></Reply>
-                        <br></br>
-                        <Voter></Voter>
-                        <br></br>
-                        <br></br>
-                        {post.children[0] !== undefined && <Reply text = {post.children[0].body} 
-                        author = {post.children[0].author}></Reply>}
-                        <button className = 'reply-button' onClick = {() => replyP()}>Reply</button>
+                        <Reply reply={replyP} id={id} postData={postData}></Reply>
                     </div>
                     <br></br>
                 </div>
@@ -113,5 +99,3 @@ export const NewPost = () => {
         </>
     )
 }
-
-

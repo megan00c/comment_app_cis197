@@ -1,26 +1,22 @@
 import React, { useState } from 'react'
+import { Voter } from './Voter'
 
-export const Reply = ({text, author, children}) => {
+export const Reply = ({postData, id, reply}) => {
+
+  let {name, body, children} = postData[id];
   
-  if (children === undefined || children.length === 0) {
-    return (<div>
-      <div className = 'author'>{author}</div>
-      <div className = 'text'>{text}</div>
-      </div>
-    )
-  }
-
-  let i = 0
-
-  for (i = 0; i < children.length; i++) {
-    return (
-      <div>
-      <div className = 'author'>{author}</div>
-      <div className = 'text'>{text}</div>
-      <Reply text = {children[i].text} author = {children[i].author}
-        children = {children[i].children}></Reply>
+  return (<div>
+        <div className = 'author'>{name}</div>
+        <div className = 'text'>{body}</div>
+        <Voter></Voter>
+        <br></br>
+        <button onClick={()=>reply(id)}>Reply</button>
+        <div className="left-margin">
+          {
+            children.map((id)=><Reply reply={reply} postData={postData} id={id}></Reply>)
+          }
         </div>
-    )
-  }
+      </div>
+  )
   
 }
